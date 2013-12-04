@@ -33,11 +33,14 @@ field C<aliases>, C<labels>, and C<descriptions> to a selected language.
 
 =back
 
-=encoding utf8
-
 =head1 SEE ALSO
 
-* <http://librecat.org/>
+Background information on Catmandu can be found at <http://librecat.org/>.
+
+Background information on Wikidata can be found at
+<http://www.wikidata.org/wiki/Wikidata:Introduction>.
+
+=encoding utf8
 
 =cut
 

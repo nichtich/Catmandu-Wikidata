@@ -85,4 +85,17 @@ sub generator {
 
 1;
 
+=head1 DESCRIPTION
+
+This L<Catmandu::Importer> queries Wikidata for entities, given by their
+Wikidata identifier (C<Q...>, C<P...>) or by a title in some know Wikidata
+site, such as the English Wikipedia (C<enwiki>).
+
+See L<Catmandu::Wikidata> for a synopsis.
+
+By default, the raw JSON structure of each Wikidata entity is returned one by
+one. Future versions of this module may further expand the entity data to make
+more easily use of it.
+
 =encoding utf8
+

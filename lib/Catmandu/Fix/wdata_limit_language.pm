@@ -6,6 +6,8 @@ use Moo;
 
 has language => (is => 'ro', required => 1);
 
+has force => (is => 'ro');
+
 around BUILDARGS => sub {
     my ($orig, $class, $language) = @_;
     $orig->($class, { language => $language });
@@ -25,6 +27,7 @@ sub fix {
             map { $_->{value} } @{$data->{aliases}->{$language}} 
         } ]; # TODO: how to express this as normal fix with move_field?
 
+    # TODO: only delete of string of requested language was found (or force)
     delete $data->{$_} for qw(aliases labels descriptions);
 
     $data;
@@ -34,8 +37,9 @@ sub fix {
 
 =head1 DESCRIPTION
 
-This L<Catmandu::Fix> modifies a Wikidata entity record by limiting the values of
-C<aliases>, C<labels>, and C<descriptions> to a selected language. The fix
+This L<Catmandu::Fix> modifies a Wikidata entity record, as imported by
+L<Catmandu::Importer::Wikidata>, by limiting the values of C<aliases>,
+C<labels>, and C<descriptions> to a selected language. The fix
 
     wdata_limit_language('fr');
 
@@ -44,5 +48,8 @@ is roughly equivalent to
     move_field('labels.fr.value','label');
     move_field('descriptions.fr.value','description');
     move_field('aliases.fr.*.value','alias.$append');     # FIXME
+
+Modification of additional fields may be added in a future release of this
+module.
 
 =encoding utf8
