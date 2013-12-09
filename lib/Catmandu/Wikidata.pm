@@ -31,6 +31,10 @@ Import entities from L<http://www.wikidata.org/>.
 Provides the fix C<wdata_retain_language($language)> to limit the values of
 field C<aliases>, C<labels>, and C<descriptions> to a selected language. 
 
+=item L<Catmandu::Fix::wdata_simplify_claims>
+
+Simplfies the C<claims> field of a Wikidata entity record.
+
 =back
 
 =head1 SEE ALSO
