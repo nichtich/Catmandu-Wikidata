@@ -11,7 +11,7 @@ package Catmandu::Wikidata;
     catmandu convert Wkidata --title dewiki:Metadaten to JSON --pretty
 
     catmandu convert Wikidata --title "Emma Goldman" \
-        --fix "wdata_limit_language('en')" to JSON --pretty
+        --fix "wdata_retain_language('en')" to JSON --pretty
 
 =head1 DESCRIPTION
 
@@ -26,9 +26,9 @@ within the L<Catmandu> framework.
 
 Import entities from L<http://www.wikidata.org/>.
 
-=item L<Catmandu::Fix::wdata_limit_language>
+=item L<Catmandu::Fix::wdata_retain_language>
 
-Provides the fix C<wdata_limit_language($language)> to limit the values of
+Provides the fix C<wdata_retain_language($language)> to limit the values of
 field C<aliases>, C<labels>, and C<descriptions> to a selected language. 
 
 =back

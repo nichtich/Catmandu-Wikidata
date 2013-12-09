@@ -1,4 +1,4 @@
-package Catmandu::Fix::wdata_limit_language;
+package Catmandu::Fix::wdata_retain_language;
 #ABSTRACT: Limit string values to a selected language
 #VERSION
 use Catmandu::Sane;
@@ -38,16 +38,17 @@ sub fix {
 =head1 DESCRIPTION
 
 This L<Catmandu::Fix> modifies a Wikidata entity record, as imported by
-L<Catmandu::Importer::Wikidata>, by limiting the values of C<aliases>,
-C<labels>, and C<descriptions> to a selected language. The fix
+L<Catmandu::Importer::Wikidata>, by deleting all language tagged strings (in
+C<aliases>, C<labels>, and C<descriptions>) expect a selected language.  The
+fix
 
-    wdata_limit_language('fr');
+    wdata_retain_language('fr');
 
 is roughly equivalent to
 
     move_field('labels.fr.value','label');
     move_field('descriptions.fr.value','description');
-    move_field('aliases.fr.*.value','alias.$append');     # FIXME
+    move_field('aliases.fr.*.value','alias.$append');
 
 Modification of additional fields may be added in a future release of this
 module.

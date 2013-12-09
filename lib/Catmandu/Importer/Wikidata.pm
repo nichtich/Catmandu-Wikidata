@@ -1,11 +1,11 @@
 package Catmandu::Importer::Wikidata;
-
+#ABSTRACT: Import from Wikidata
+#VERSION
 use Catmandu::Sane;
 use Moo;
 use JSON;
 use Furl;
 use URI::Escape;
-use experimental 'lexical_topic';
 
 with 'Catmandu::Importer';
 
@@ -39,14 +39,15 @@ sub _request {
             uc($_);
         } @{$self->ids};
         $url .= 'ids=' . join '|', @ids;
-    } elsif($self->title) {
+    } elsif(defined $self->title) {
         my ($site, $title);
-        if ($self->title =~ /^([a-z]+):(.+)$/) {
-           ($site, $title) = ($1,$2);
+        if ($self->title =~ /^([a-z]+([_-][a-z])*):(.+)$/) {
+            ($site, $title) = ($1,$3);
         } else {
-           ($site, $title) = ($self->site,$self->title);
-           die "invalid site $site" if $site !~ /^[a-z]+$/;
+            ($site, $title) = ($self->site,$self->title);
         }
+        die "invalid site $site" if $site !~ /^[a-z]+([_-][a-z])*$/;
+        $site =~ s/-/_/g;
         $url .= "sites=$site&titles=".uri_escape($title);
         # TODO: pass multiple sites|titles
     } else {
@@ -97,5 +98,34 @@ By default, the raw JSON structure of each Wikidata entity is returned one by
 one. Future versions of this module may further expand the entity data to make
 more easily use of it.
 
-=encoding utf8
+=head1 CONFIGURATION
 
+=over
+
+=item api
+
+Wikidata API base URL. Default is C<http://www.wikidata.org/w/api.php>.
+
+=item ids
+
+A list of Wikidata entitiy/property ids, such as C<Q42> and C<P19>. Use
+comma, vertical bar, or space as separator.
+
+=item site
+
+Wiki site key for referring to Wikidata entities by title. Default is
+C<enwiki> for English Wikipedia. A list of supported site keys can be
+queried as part of
+L<https://www.wikidata.org/w/api.php?action=paraminfo&modules=wbgetentities>
+(unless L<https://bugzilla.wikimedia.org/show_bug.cgi?id=58200> is fixed).
+
+=item title
+
+Title of a page for referring to Wikidata entities. A title is only unique
+within a selected C<site>. One can also prepend the site key to a title
+separated by colon, e.g. C<enwiki:anarchy> for the entity that is titled
+"anarchy" in the English Wikipedia.
+
+=back
+
+=encoding utf8
