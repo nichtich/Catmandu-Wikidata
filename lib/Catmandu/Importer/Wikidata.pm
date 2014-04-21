@@ -3,15 +3,30 @@ package Catmandu::Importer::Wikidata;
 #VERSION
 use Catmandu::Sane;
 use Moo;
-use JSON;
-use Furl;
-use URI::Escape;
+use URI::Template;
 
-with 'Catmandu::Importer';
+extends 'Catmandu::Importer::getJSON';
 
 has api => ( 
     is => 'ro', 
     default => sub { 'http://www.wikidata.org/w/api.php' } 
+);
+
+has '+url' => (
+    is => 'ro',
+    lazy => 1,
+    builder => sub { 
+        URI::Template->new(
+            $_[0]->api 
+            . '?action=wbgetentities&format=json{&ids}{&sites}{&titles}'
+        );
+    }
+); 
+
+has '+from' => ( 
+    is => 'ro', 
+    lazy => 1,
+    builder => \&_build_from,
 );
 
 has ids => (
@@ -21,24 +36,30 @@ has ids => (
 
 has site => (
     is => 'ro',
-    default => sub { 'enwiki' }
+    default => sub { 'enwiki' },
+    trigger => sub {
+        my ($self,$site) = @_;
+        die "invalid site $site" if $site !~ /^[a-z]+([_-][a-z])*$/;
+        $site =~ s/-/_/g;
+        return $site;
+    }
 );
 
 has title => (
     is => 'ro',
 );
 
-sub _request {
+sub _build_from {
     my ($self) = @_;
 
-    my $url = $self->api . '?action=wbgetentities&format=json&';
+    my $vars;
 
     if ($self->ids) {
         my @ids = map {
             $_ =~ /^[QP][0-9]+$/i or die "invalid wikidata id $_\n";
             uc($_);
         } @{$self->ids};
-        $url .= 'ids=' . join '|', @ids;
+        $vars = { ids => join('|', @ids) };
     } elsif(defined $self->title) {
         my ($site, $title);
         if ($self->title =~ /^([a-z]+([_-][a-z])*):(.+)$/) {
@@ -48,43 +69,45 @@ sub _request {
         }
         die "invalid site $site" if $site !~ /^[a-z]+([_-][a-z])*$/;
         $site =~ s/-/_/g;
-        $url .= "sites=$site&titles=".uri_escape($title);
         # TODO: pass multiple sites|titles
-    } else {
-        die "missing ids or title";
-    }
-    print ">$url\n";
-
-    my $res = Furl->new(
-        agent => 'Mozilla/5.0',
-        timeout => 10
-    )->get($url);
-
-    die $res->status_line unless $res->is_success;
-
-    my $json = eval { JSON->new->decode($res->content); };
-    die $@ if $@;
-
-    unless ($json->{success} && $json->{entities}) {
-        # TODO: better error handling
-        #use Data::Dumper;
-        #die Dumper($json)
-        die "query failed";
+        $vars = { sites => $site, titles => $title };
     }
 
-    return $json->{entities};
+    return ($vars ? $self->url->process($vars) : undef);
 }
 
-sub generator {
-    my ($self) = @_;
-    sub {
-        state $entities = $self->_request;
-        my ($id, $item) = each %$entities;
-        return $item;
+sub request_hook {
+    my ($self, $line) = @_;
+
+    if ($line =~ /^[PQ][0-9]+$/i) {
+        return { ids => uc($line) };
+    } elsif ($line =~ /^([a-z]+([_-][a-z])*):(.+)$/) {
+        my ($site, $title) = ($1,$3);
+        $site =~ s/-/_/g;
+        return { sites => $site, titles => $title };
+    } else {
+        return { sites => $self->site, titles => $line };
     }
+
+    return;
+}
+
+sub response_hook {
+    my ($self, $data) = @_;
+    # TODO: better error handling
+    return [ values %{$data->{entities}} ];
 }
 
 1;
+
+=head1 SYNOPSIS
+
+    catmandu convert Wikidata --ids Q1,P227
+    catmandu convert Wikidata --site dewiki --title Wahnsinn
+
+    echo Q7 | catmandu convert Wikidata
+    echo Wahnsinn | catmandu convert Wikidata --site dewiki
+    echo dewiki:Wahnsinn | catmandu convert Wikidata
 
 =head1 DESCRIPTION
 
@@ -100,6 +123,9 @@ more easily use of it.
 
 =head1 CONFIGURATION
 
+This importer extends L<Catmandu::Importer::getJSON>, so it can be configured
+with options C<agent>, C<timeout>, C<headers>, C<proxy>, and C<dry>.
+
 =over
 
 =item api
@@ -109,7 +135,8 @@ Wikidata API base URL. Default is C<http://www.wikidata.org/w/api.php>.
 =item ids
 
 A list of Wikidata entitiy/property ids, such as C<Q42> and C<P19>. Use
-comma, vertical bar, or space as separator.
+comma, vertical bar, or space as separator. Read from input stream if no
+ids, nor titles are specified.
 
 =item site
 
@@ -124,7 +151,8 @@ L<https://www.wikidata.org/w/api.php?action=paraminfo&modules=wbgetentities>
 Title of a page for referring to Wikidata entities. A title is only unique
 within a selected C<site>. One can also prepend the site key to a title
 separated by colon, e.g. C<enwiki:anarchy> for the entity that is titled
-"anarchy" in the English Wikipedia.
+"anarchy" in the English Wikipedia. Read from input stream if no titles, nor
+ids are specified.
 
 =back
 
