@@ -1,5 +1,5 @@
 package Catmandu::Fix::wd_language;
-#ABSTRACT: Limit string values to a selected language
+#ABSTRACT: Limit string values in a Wikidata entity record to a selected language
 #VERSION
 use Catmandu::Sane;
 use Moo;
