@@ -1,11 +1,11 @@
-package Catmandu::Fix::wdata_simplify_claims;
-#ABSTRACT: Simplify the claims of a Wikidata entity
+package Catmandu::Fix::wd_simple_claims;
+#ABSTRACT: Simplify claims of a Wikidata entity record
 #VERSION
 use Catmandu::Sane;
 use Moo;
 
-# TODO: this only covers some snak types
-# See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Snaks for more
+# TODO: also support other snak types
+# See https://www.mediawiki.org/wiki/Wikibase/DataModel for more
 sub simplify_snak {
     my ($snak) = @_;
     delete $snak->{property}; # redundant
@@ -13,15 +13,12 @@ sub simplify_snak {
         for (keys %{$snak->{datavalue}}) {
             $snak->{$_} = $snak->{datavalue}->{$_};
         }
-        #if ($snak->{type} eq 'wikibase-entityid') {
-        #    $snak->{entity} = 'P'.$snak->{value}->{'numeric-id'};
-        #    delete $snak->{value};
-        #}
+        if ($snak->{datatype} eq 'wikibase-item') {
+            $snak->{value} = $snak->{value}->{'numeric-id'};;
+        }
+        delete $snak->{type}; # equals to datatype
         delete $snak->{datavalue};
     }
-
-    # TODO add value type (such as 'URL') as soon as it is included in the JSON
-    # e.g. P856 in Q52 (Wikipedia)
 }
 
 sub fix {
@@ -59,8 +56,11 @@ sub fix {
 
 =head1 DESCRIPTION
 
-This L<Catmandu::Fix> modifies a Wikidata entity JSON record by simplifying the
-C<claims> entry. The simplification is highly experimental and may change in a
-future release of this module!
+This L<Catmandu::Fix> modifies a Wikidata entity record by simplifying its claims. 
+
+=head1 SEE ALSO
+
+L<Catmandu::Fix::wd_simple> applies both L<Catmandu::Fix::wd_simple_claims> and
+L<Catmandu::Fix::wd_simple_strings>.
 
 =encoding utf8

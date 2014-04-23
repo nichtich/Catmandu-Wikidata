@@ -69,7 +69,6 @@ sub _build_from {
         }
         die "invalid site $site" if $site !~ /^[a-z]+([_-][a-z])*$/;
         $site =~ s/-/_/g;
-        # TODO: pass multiple sites|titles
         $vars = { sites => $site, titles => $title };
     }
 
@@ -94,8 +93,14 @@ sub request_hook {
 
 sub response_hook {
     my ($self, $data) = @_;
-    # TODO: better error handling
-    return [ values %{$data->{entities}} ];
+    return unless ref $data and ref $data->{entities} eq 'HASH';
+    return [ 
+        map {
+            $_->{missing} = 1 if exists $_->{missing};
+            $_;
+        } grep { ref $_ eq 'HASH'; }
+        values %{$data->{entities}} 
+    ];
 }
 
 1;
@@ -105,26 +110,32 @@ sub response_hook {
     catmandu convert Wikidata --ids Q1,P227
     catmandu convert Wikidata --site dewiki --title Wahnsinn
 
-    echo Q7 | catmandu convert Wikidata
+    echo Q1 | catmandu convert Wikidata
     echo Wahnsinn | catmandu convert Wikidata --site dewiki
     echo dewiki:Wahnsinn | catmandu convert Wikidata
 
+    echo Q1 | catmandu convert Wikidata --fix 'retain_field("labels")'
+    
 =head1 DESCRIPTION
 
 This L<Catmandu::Importer> queries Wikidata for entities, given by their
 Wikidata identifier (C<Q...>, C<P...>) or by a title in some know Wikidata
-site, such as the English Wikipedia (C<enwiki>).
+site, such as the English Wikipedia (C<enwiki>). The entities are either
+specified as options (C<ids>, C<site>, and/pr C<title>) or as line-separated
+input values. By default, the raw JSON structure of each Wikidata entity is
+returned one by one. Entities not found are returned with the C<missing>
+property set to C<1> like this:
 
-See L<Catmandu::Wikidata> for a synopsis.
+    { "id": "Q7", "missing": "1" }
 
-By default, the raw JSON structure of each Wikidata entity is returned one by
-one. Future versions of this module may further expand the entity data to make
-more easily use of it.
+To further process the JSON structure L<Catmandu::Wikidata> contains several
+Catmandu fixes, e.g. to only retain a selected language.
 
 =head1 CONFIGURATION
 
 This importer extends L<Catmandu::Importer::getJSON>, so it can be configured
-with options C<agent>, C<timeout>, C<headers>, C<proxy>, and C<dry>.
+with options C<agent>, C<timeout>, C<headers>, C<proxy>, and C<dry>. Additional
+options include:
 
 =over
 
