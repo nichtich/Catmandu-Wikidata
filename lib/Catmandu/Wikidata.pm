@@ -6,7 +6,7 @@ package Catmandu::Wikidata;
 
 =head1 SYNOPSIS
 
-    catmandu convert Wikidata --items Q42,P19 to JSON --pretty 1
+    catmandu convert Wikidata --items Q42,P19 to JSON --pretty 1  ## reads from STDIN
     catmandu convert Wikidata --site enwiki --title "Emma Goldman" to JSON --pretty 1
     catmandu convert Wkidata --title dewiki:Metadaten to JSON --pretty 1
 
