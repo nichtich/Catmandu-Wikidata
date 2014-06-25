@@ -4,8 +4,9 @@ package Catmandu::Fix::wd_language;
 use Catmandu::Sane;
 use Moo;
 
-has language => (is => 'ro', required => 1);
+with 'Catmandu::Fix::Base';
 
+has language => (is => 'ro', required => 1);
 has force => (is => 'ro');
 
 around BUILDARGS => sub {
@@ -13,9 +14,18 @@ around BUILDARGS => sub {
     $orig->($class, { language => $language });
 };
 
-sub fix {
-    my ($self, $data) = @_;
+sub emit {
+    my ($self, $fixer) = @_;
+
     my $language = $self->language;
+    my $var  = $fixer->var;
+    my $code = $fixer->capture( sub { _fix_code($_[0],$language) } );
+
+    return "${code}->(${var})";
+}
+
+sub _fix_code {
+    my ($data, $language) = @_;
 
     foreach my $what (qw(labels descriptions)) {
         next unless exists $data->{$what};

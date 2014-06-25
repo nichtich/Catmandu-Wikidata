@@ -7,6 +7,9 @@ package Catmandu::Wikidata;
 =head1 SYNOPSIS
 
     catmandu convert Wikidata --items Q42,P19 to JSON --pretty 1
+
+    echo Q42 | catmandu convert Wikidata to JSON --pretty 1
+
     catmandu convert Wikidata --site enwiki --title "Emma Goldman" to JSON --pretty 1
     catmandu convert Wkidata --title dewiki:Metadaten to JSON --pretty 1
 
@@ -46,7 +49,8 @@ Simplifies claims of a Wikidata entity record.
 =item L<Catmandu::Fix::wd_simple>
 
 Applies L<Catmandu::Fix::wd_simple_strings> and
-L<Catmandu::Fix::wd_simple_claims>. Further simplifies sitelinks.
+L<Catmandu::Fix::wd_simple_claims>. Further simplifies sitelinks and optionally
+applies L<Catmandu::Fix::wd_language>.
 
 =back
 
