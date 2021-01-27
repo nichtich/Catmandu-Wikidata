@@ -6,6 +6,5 @@ Feedback and contributions are very welcome!
 
 # Status
 
-[![Build Status](https://travis-ci.org/nichtich/Catmandu-Wikidata.svg?branch=master)](https://travis-ci.org/nichtich/Catmandu-Wikidata)
-[![Coverage Status](https://coveralls.io/repos/nichtich/Catmandu-Wikidata/badge.png?branch=devel)](https://coveralls.io/r/nichtich/Catmandu-Wikidata?branch=devel)
+[![Build Status](https://github.com/nichtich/Catmandu-Wikidata/workflows/CI/badge.svg)](https://github.com/nichtich/Catmandu-Wikidata/actions?query=workflow%3ACI)
 [![Kwalitee Score](http://cpants.cpanauthors.org/dist/Catmandu-Wikidata.png)](http://cpants.cpanauthors.org/dist/Catmandu-Wikidata)
