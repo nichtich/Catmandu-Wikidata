@@ -56,7 +56,7 @@ sub _build_from {
 
     if ($self->ids) {
         my @ids = map {
-            $_ =~ /^[QP][0-9]+$/i or die "invalid wikidata id $_\n";
+            $_ =~ /^[LPQ][0-9]+$/i or die "invalid wikidata id $_\n";
             uc($_);
         } @{$self->ids};
         $vars = { ids => join('|', @ids) };
@@ -78,7 +78,7 @@ sub _build_from {
 sub request_hook {
     my ($self, $line) = @_;
 
-    if ($line =~ /^[PQ][0-9]+$/i) {
+    if ($line =~ /^[LPQ][0-9]+$/i) {
         return { ids => uc($line) };
     } elsif ($line =~ /^([a-z]+([_-][a-z])*):(.+)$/) {
         my ($site, $title) = ($1,$3);
@@ -119,7 +119,7 @@ sub response_hook {
 =head1 DESCRIPTION
 
 This L<Catmandu::Importer> queries Wikidata for entities, given by their
-Wikidata identifier (C<Q...>, C<P...>) or by a title in some know Wikidata
+Wikidata identifier (C<Q...>, C<P...>, C<L...>) or by a title in some know Wikidata
 site, such as the English Wikipedia (C<enwiki>). The entities are either
 specified as options (C<ids>, C<site>, and/pr C<title>) or as line-separated
 input values. By default, the raw JSON structure of each Wikidata entity is
@@ -145,7 +145,7 @@ Wikidata API base URL. Default is C<http://www.wikidata.org/w/api.php>.
 
 =item ids
 
-A list of Wikidata entitiy/property ids, such as C<Q42> and C<P19>. Use
+A list of Wikidata entity/property/lexeme ids, such as C<Q42>, C<P19> and C<L1122>. Use
 comma, vertical bar, or space as separator. Read from input stream if no
 ids, nor titles are specified.
 
