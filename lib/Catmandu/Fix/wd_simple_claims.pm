@@ -54,6 +54,10 @@ sub fix {
 
 1;
 
+=head1 SYNOPSIS
+
+    wd_simple_claims()
+
 =head1 DESCRIPTION
 
 This L<Catmandu::Fix> modifies a Wikidata entity record by simplifying its claims. 

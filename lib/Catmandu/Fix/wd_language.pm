@@ -66,6 +66,11 @@ sub _fix_code {
 
 1;
 
+=head1 SYNOPSIS
+
+    wd_language(de)
+
+
 =head1 DESCRIPTION
 
 This L<Catmandu::Fix> modifies a Wikidata entity record, as imported by
