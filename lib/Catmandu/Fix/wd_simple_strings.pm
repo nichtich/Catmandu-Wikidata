@@ -16,9 +16,11 @@ sub fix {
         }
     }
 
-    if (my $hash = $data->{aliases}) {
-        foreach my $lang (keys %$hash) {
-            $hash->{$lang} = [ map { $_->{value} } @{$hash->{$lang}} ];
+    if (ref $data->{aliases} and ref $data->{aliases} eq 'HASH') {
+        if (my $hash = $data->{aliases}) {
+            foreach my $lang (keys %$hash) {
+                $hash->{$lang} = [ map { $_->{value} } @{$hash->{$lang}} ];
+            }
         }
     }
 
